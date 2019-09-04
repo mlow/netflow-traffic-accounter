@@ -1,0 +1,24 @@
+{
+  "name": "netflow-traffic-accounter",
+  "version": "0.1.0",
+  "description": "IP traffic accounting with NetFlow and Node.js",
+  "author": "Matt Low <matt@mlow.ca>",
+  "license": "MIT",
+  "main": "index.js",
+  "homepage": "https://github.com/mlow/netflow-traffic-accounter",
+  "bugs": {
+    "url": "https://github.com/mlow/netflow-traffic-accounter/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mlow/netflow-traffic-accounter.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "netmask": "^1.0.6",
+    "node-netflowv9": "^0.2.16"
+  },
+  "devDependencies": {}
+}
