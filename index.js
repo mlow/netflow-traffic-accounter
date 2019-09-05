@@ -9,6 +9,7 @@ module.exports = class extends EventEmitter {
     this.exportInterval = 300;
     this.localNets = null;
     this.callback = callback;
+    this.netflowOptions = {};
 
     this.records = {};
     this.periodFrom = Math.trunc(Date.now() / 1000);
@@ -26,9 +27,13 @@ module.exports = class extends EventEmitter {
           }
         });
       }
+      if (options.netflowOptions) this.netflowOptions = options.netflowOptions;
     }
 
-    this.collector = Collector({ port: this.listenPort });
+    this.collector = Collector({
+      port: this.listenPort,
+      ...this.netflowOptions
+    });
     this.collector.on("data", record => {
       for (let f of record["flows"]) {
         let v4src = f["ipv4_src_addr"];

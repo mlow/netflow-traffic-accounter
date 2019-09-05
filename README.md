@@ -30,6 +30,9 @@ tested with Cisco IOS XR.
             "10.10.10.0/24",
             "192.168.0.0/24",
         ],
+        netflowOptions: {
+            // options here are passed to node-netflowv9
+        },
     }, function(data, periodFrom, periodTo) {
         // called every exportInterval seconds with traffic data collected
         // since the last export.
@@ -71,3 +74,9 @@ The following options are available in the options object:
 will account incoming and outgoing traffic for. Can be an array of strings or
 of `Netmask` objects from the [Netmask](https://github.com/rs/node-netmask)
 package.
+
+**netflowOptions** - Default: {}. Used as the constructor of `node-netflowv9`'s
+`Collector`. See [here](https://github.com/delian/node-netflowv9#Options) for
+available options. Useful for proxying netflow traffic to another collector with
+the `proxy` option. **Note**: Specifying `port` in `netflowOptions` overrides
+our own `listenPort`.
