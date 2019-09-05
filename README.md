@@ -1,5 +1,4 @@
-netflow-traffic-accounter
-=========================
+# netflow-traffic-accounter
 
 NetFlow IP Traffic Accounting
 
@@ -28,8 +27,8 @@ tested with Cisco IOS XR.
         listenPort: 3000,
         exportInterval: 300,
         localNets: [
-            '10.10.10.0/24',
-            '192.168.0.0/24',
+            "10.10.10.0/24",
+            "192.168.0.0/24",
         ],
     }, function(data, periodFrom, periodTo) {
         // called every exportInterval seconds with traffic data collected
@@ -46,7 +45,7 @@ Traffic data is presented in the following format:
             "in_bytes": 123123,
             "out_bytes": 123123,
             "in_pkts": 1231,
-            "out_pkts: 1231,
+            "out_pkts": 1231,
         },
         "10.10.10.2": {
             ....
@@ -63,10 +62,10 @@ The following options are available in the options object:
 
 **listenPort** - Default: 3000. The port to listen for NetFlow data on.
 
-**exportInterval** - Default: 300. How often to export aggregated traffic data.
-Data is is exported when the following condition is true:
+**exportInterval** - Default: 300. How often to export aggregated traffic data
+(in seconds). Data is is exported when the following condition is true:
 
-    currentSystemTime % exportInterval  == 0
+    currentSystemTime % exportInterval == 0
 
 **localNets** - Default: null. An array of subnets considered local, which we
 will account incoming and outgoing traffic for. Can be an array of strings or
