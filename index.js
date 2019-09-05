@@ -1,8 +1,10 @@
 const Collector = require("node-netflowv9");
 const Netmask = require("netmask").Netmask;
+const EventEmitter = require("events");
 
-module.exports = class {
+module.exports = class extends EventEmitter {
   constructor(options, callback) {
+    super();
     this.listenPort = 3000;
     this.exportInterval = 300;
     this.localNets = null;
@@ -74,7 +76,10 @@ module.exports = class {
   _export() {
     let toExport = this.records;
     this.records = {};
-    this.callback(toExport, this.periodFrom, this.lastExport);
+    if (this.callback instanceof Function) {
+      this.callback(toExport, this.periodFrom, this.lastExport);
+    }
+    this.emit("export", toExport, this.periodFrom, this.lastExport);
     this.periodFrom = this.lastExport;
   }
 
