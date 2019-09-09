@@ -1,6 +1,6 @@
 {
   "name": "netflow-traffic-accounter",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "IP traffic accounting with NetFlow and Node.js",
   "author": "Matt Low <matt@mlow.ca>",
   "license": "MIT",
