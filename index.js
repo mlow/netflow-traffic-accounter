@@ -36,8 +36,11 @@ module.exports = class extends EventEmitter {
       port: this.listenPort,
       ...this.netflowOptions
     });
+    this.collector.on("template", record => {
+      this._checkSequence(record);
+    });
     this.collector.on("data", record => {
-      if (this._isDuplicatePacket(record)) {
+      if (!this._checkSequence(record)) {
         return;
       }
 
@@ -94,7 +97,7 @@ module.exports = class extends EventEmitter {
     this.periodFrom = this.lastExport;
   }
 
-  _isDuplicatePacket(record) {
+  _checkSequence(record) {
     const version = record.header.version;
     const seq = record.header.sequence;
     const count = record.header.count;
@@ -102,7 +105,7 @@ module.exports = class extends EventEmitter {
     if (this.lastCount == 0) {
       this.lastSeq = seq;
       this.lastCount = count;
-      return false;
+      return true;
     }
 
     let expectedSeq = -1;
@@ -114,14 +117,14 @@ module.exports = class extends EventEmitter {
         expectedSeq = this.lastSeq + 1;
         break;
       default:
-        return false;
+        return true;
     }
 
     if (seq == this.lastSeq) {
       console.warn(
         `WARNING: Duplicate flow sequence ${seq} received, discarding.`
       );
-      return true;
+      return false;
     }
 
     if (seq != expectedSeq) {
@@ -132,7 +135,7 @@ module.exports = class extends EventEmitter {
 
     this.lastSeq = seq;
     this.lastCount = count;
-    return false;
+    return true;
   }
 
   async stop() {
