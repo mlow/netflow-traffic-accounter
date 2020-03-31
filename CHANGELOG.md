@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0](https://github.com/mlow/netflow-traffic-accounter/compare/v0.3.1...v0.4.0) (2020-03-31)
+### Added
+- Add ignoreNets option which allows for not counting traffic between localNets
+hosts and ignoreNets hosts.
+### Changed
+- No longer account packets where ipv4_next_hop is in local_nets
+
 ## [0.3.1](https://github.com/mlow/netflow-traffic-accounter/compare/v0.3.0...v0.3.1) (2019-09-10)
 - Fixed erroneous incorrect flow sequence warnings.
 
