@@ -30,6 +30,9 @@ tested with Cisco IOS XR.
             "10.10.10.0/24",
             "192.168.0.0/24",
         ],
+        ignoreNets: [
+            "192.168.1.0/24",
+        ],
         netflowOptions: {
             // options here are passed to node-netflowv9
         },
@@ -72,6 +75,11 @@ The following options are available in the options object:
 
 **localNets** - Default: null. An array of subnets considered local, which we
 will account incoming and outgoing traffic for. Can be an array of strings or
+of `Netmask` objects from the [Netmask](https://github.com/rs/node-netmask)
+package.
+
+**ignoreNets** - Default: null. An array of subnets to ignore. We will not
+account traffic between localNets and ignoreNets. Can be an array of strings or
 of `Netmask` objects from the [Netmask](https://github.com/rs/node-netmask)
 package.
 
