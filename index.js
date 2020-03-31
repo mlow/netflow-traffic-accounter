@@ -8,6 +8,7 @@ module.exports = class extends EventEmitter {
     this.listenPort = 3000;
     this.exportInterval = 300;
     this.localNets = null;
+    this.ignoreNets = null;
     this.callback = callback;
     this.netflowOptions = {};
 
@@ -21,13 +22,10 @@ module.exports = class extends EventEmitter {
       if (options.listenPort) this.listenPort = options.listenPort;
       if (options.exportInterval) this.exportInterval = options.exportInterval;
       if (options.localNets) {
-        this.localNets = options.localNets.map(net => {
-          if (net instanceof Netmask) {
-            return net;
-          } else if (typeof net === "string" || net instanceof String) {
-            return new Netmask(net);
-          }
-        });
+        this.localNets = this.asNetmaskArray(options.localNets);
+      }
+      if (options.ignoreNets) {
+        this.ignoreNets = this.asNetmaskArray(options.ignoreNets);
       }
       if (options.netflowOptions) this.netflowOptions = options.netflowOptions;
     }
@@ -47,15 +45,12 @@ module.exports = class extends EventEmitter {
       for (const f of record.flows) {
         const v4src = f.ipv4_src_addr;
         const v4dst = f.ipv4_dst_addr;
-        const v4nextHop = f.ipv4_next_hop;
         const bytes = f.in_bytes;
         const pkts = f.in_pkts;
 
-        if (this.isLocal(v4dst)) {
+        if (this.isLocal(v4dst) && !this.isIgnored(v4src)) {
           this.accountTraffic(v4dst, "in", bytes, pkts);
-        } else if (this.isLocal(v4nextHop)) {
-          this.accountTraffic(v4nextHop, "in", bytes, pkts);
-        } else if (this.isLocal(v4src)) {
+        } else if (this.isLocal(v4src) && !this.isIgnored(v4dst)) {
           this.accountTraffic(v4src, "out", bytes, pkts);
         }
       }
@@ -68,6 +63,16 @@ module.exports = class extends EventEmitter {
         this._export();
       }
     }, 500);
+  }
+
+  asNetmaskArray(arr) {
+    return arr.map(net => {
+      if (net instanceof Netmask) {
+        return net;
+      } else if (typeof net === "string" || net instanceof String) {
+        return new Netmask(net);
+      }
+    });
   }
 
   accountTraffic(addr, direction, bytes, packets) {
@@ -85,6 +90,10 @@ module.exports = class extends EventEmitter {
 
   isLocal(addr) {
     return this.localNets.find(net => net.contains(addr));
+  }
+
+  isIgnored(addr) {
+    return this.ignoreNets && this.ignoreNets.find(net => net.contains(addr));
   }
 
   _export() {
