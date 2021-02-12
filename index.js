@@ -20,6 +20,8 @@ module.exports = class extends (
     this.lastSeq = 0;
     this.lastCount = 0;
 
+    this.lastExportPromise = null;
+
     if (typeof options === "object") {
       if (options.listenPort) this.listenPort = options.listenPort;
       if (options.exportInterval) this.exportInterval = options.exportInterval;
@@ -62,7 +64,7 @@ module.exports = class extends (
       const now = Math.trunc(Date.now() / 1000);
       if (now % this.exportInterval == 0 && now > this.lastExport) {
         this.lastExport = now;
-        this._export();
+        this.lastExportPromise = this._export();
       }
     }, 500);
   }
@@ -152,7 +154,13 @@ module.exports = class extends (
   async stop() {
     clearInterval(this.timer);
     this.collector.server.close();
+    if (this.lastExportPromise) {
+      // if there was an in-progress export, await it
+      await this.lastExportPromise;
+    }
+
     this.lastExport = Math.trunc(Date.now() / 1000);
-    await this._export();
+    // return one final export's promise
+    return this._export();
   }
 };
