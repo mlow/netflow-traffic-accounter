@@ -2,7 +2,9 @@ const Collector = require("node-netflowv9");
 const Netmask = require("netmask").Netmask;
 const EventEmitter = require("events");
 
-module.exports = class extends EventEmitter {
+module.exports = class extends (
+  EventEmitter
+) {
   constructor(options, callback) {
     super();
     this.listenPort = 3000;
@@ -32,12 +34,12 @@ module.exports = class extends EventEmitter {
 
     this.collector = Collector({
       port: this.listenPort,
-      ...this.netflowOptions
+      ...this.netflowOptions,
     });
-    this.collector.on("template", record => {
+    this.collector.on("template", (record) => {
       this._checkSequence(record);
     });
-    this.collector.on("data", record => {
+    this.collector.on("data", (record) => {
       if (!this._checkSequence(record)) {
         return;
       }
@@ -66,7 +68,7 @@ module.exports = class extends EventEmitter {
   }
 
   asNetmaskArray(arr) {
-    return arr.map(net => {
+    return arr.map((net) => {
       if (net instanceof Netmask) {
         return net;
       } else if (typeof net === "string" || net instanceof String) {
@@ -81,7 +83,7 @@ module.exports = class extends EventEmitter {
         in_bytes: 0,
         out_bytes: 0,
         in_pkts: 0,
-        out_pkts: 0
+        out_pkts: 0,
       };
     }
     this.records[addr][direction + "_bytes"] += bytes;
@@ -89,18 +91,18 @@ module.exports = class extends EventEmitter {
   }
 
   isLocal(addr) {
-    return this.localNets.find(net => net.contains(addr));
+    return this.localNets.find((net) => net.contains(addr));
   }
 
   isIgnored(addr) {
-    return this.ignoreNets && this.ignoreNets.find(net => net.contains(addr));
+    return this.ignoreNets && this.ignoreNets.find((net) => net.contains(addr));
   }
 
-  _export() {
+  async _export() {
     const toExport = this.records;
     this.records = {};
     if (this.callback instanceof Function) {
-      this.callback(toExport, this.periodFrom, this.lastExport);
+      await this.callback(toExport, this.periodFrom, this.lastExport);
     }
     this.emit("export", toExport, this.periodFrom, this.lastExport);
     this.periodFrom = this.lastExport;
@@ -151,6 +153,6 @@ module.exports = class extends EventEmitter {
     clearInterval(this.timer);
     this.collector.server.close();
     this.lastExport = Math.trunc(Date.now() / 1000);
-    this._export();
+    await this._export();
   }
 };
